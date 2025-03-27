@@ -12,5 +12,12 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "svelte": "^5.20.2",
     "vite": "^6.2.0"
+  },
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.78",
+    "comlink": "^4.4.2",
+    "localforage": "^1.10.0",
+    "transformers": "^3.1.0",
+    "zustand": "^5.0.3"
   }
 }
