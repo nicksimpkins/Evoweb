@@ -1,47 +1,120 @@
-# Svelte + Vite
+# Evoweb
 
-This template should help get you started developing with Svelte in Vite.
+**Evoweb** is an innovative web application that dynamically generates personalized content using client-side LLMs that analyze browser cookies and cache data.
 
-## Recommended IDE Setup
+## 🚀 Overview
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+PersonaWeb creates unique, tailored websites for each user without sending any data to servers. The entire content generation process happens locally in the user's browser using lightweight Large Language Models and browser-based machine learning.
 
-## Need an official Svelte framework?
+Instead of building static websites with predefined content, Evoweb generates the entire UI and content based on what it learns about the user through their browser data, creating truly personalized web experiences.
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+## 🔑 Key Features
 
-## Technical considerations
+- **Complete Client-Side Processing**: All user data stays on the user's device
+- **Cookie & Cache Analysis**: Analyzes browser data to understand user preferences
+- **Dynamic Content Generation**: Generates personalized web experiences in real-time
+- **Containerized Deployment**: Easy to deploy and scale using containers
+- **Efficient Resource Usage**: Optimized for performance even with client-side ML
 
-**Why use this over SvelteKit?**
+## 🛠️ Technology Stack
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+### LLM Platform
+- **WebLLM** / **Transformers.js** - Running transformer models directly in browser
+- **Llama-2-7B** - Quantized for browser execution
 
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+### Performance Optimization
+- **WebGPU** / **WebGL** - Hardware acceleration for model inference
+- **Web Workers** - Non-blocking model execution
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+### Storage
+- **IndexedDB** - For model weights and generated content
+- **LocalStorage** - For user preferences
+- **CacheStorage** - For offline capabilities
 
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+### Frontend
+- **Svelte** - Lightweight reactive UI framework
+- **Tailwind CSS** - Utility-first styling
+- **Vite** - Fast build tool and development server
 
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+## 🏗️ Architecture
 
-**Why include `.vscode/extensions.json`?**
+PersonaWeb follows a "shell architecture" where the application shell loads quickly while the ML components progressively load in the background:
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+1. **Initial Load**: Lightweight shell application with loading indicators
+2. **Model Loading**: Progressive loading of quantized LLM
+3. **Data Analysis**: Private analysis of browser cookies and local data
+4. **Content Generation**: LLM generates personalized UI and content
+5. **Rendering**: Dynamic rendering of generated content
 
-**Why enable `checkJs` in the JS template?**
+## 📋 Implementation Steps
 
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
+1. **Setup Svelte with Vite**
+   - Configure for optimal performance
+   - Implement progressive loading patterns
 
-**Why is HMR not preserving my local component state?**
+2. **Integrate WebLLM/Transformers.js**
+   - Setup model loading pipeline
+   - Configure Web Workers for non-blocking execution
 
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
+3. **Implement Cookie/Cache Analysis**
+   - Create privacy-preserving data collection utilities
+   - Build preference extraction pipeline
 
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
+4. **Design Content Generation System**
+   - Create prompts for the LLM to generate website components
+   - Implement rendering system for LLM-generated content
 
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+5. **Optimize Performance**
+   - Implement chunked loading of model weights
+   - Setup IndexedDB for caching generated content
+   - Configure WebGPU/WebGL acceleration
+
+## 🚀 Getting Started
+
+```bash
+# Clone the repository
+git clone https://github.com/nicksimpkins/evoweb.git
+
+# Navigate to project directory
+cd evoweb
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run containerized version
+docker-compose up
 ```
+
+## 🔒 Privacy Considerations
+
+PersonaWeb is designed with privacy as a core principle:
+- No data leaves the user's device
+- All processing happens locally
+- Clear user consent flows are implemented
+- Easy opt-out mechanisms are available
+
+## 🧩 Use Cases
+
+- **E-commerce**: Personalized shopping experiences
+- **Content Platforms**: Tailored reading/viewing experiences
+- **Documentation Sites**: Customized learning paths
+- **Dashboards**: User-specific information layouts
+
+## 📝 License
+
+This project uses a dual licensing model:
+
+- **For individuals and non-commercial use**: [MIT License](LICENSE-MIT.md)
+- **For commercial use**: Please contact for licensing terms at nsimpkins@hawk.iit.edu
+
+Any use of this software in a commercial setting or by a commercial entity requires a paid commercial license.
+
+---
+
+*Evoweb, the next step in web evolution*
