@@ -91,6 +91,13 @@ npm run build
 docker-compose up
 ```
 
+## Files
+
+src/lib/model-service.js: LLM tuning and code generation
+src/storage.js: Local broswer storage configuration for temp data
+src/cookie-parser.js: Grabs and processes users cookies
+src/workers/model-worker.js: Model initialization file
+
 ## 🔒 Privacy Considerations
 
 PersonaWeb is designed with privacy as a core principle:
