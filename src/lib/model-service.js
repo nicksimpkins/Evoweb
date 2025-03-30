@@ -40,52 +40,64 @@ export async function createModelEngine() {
   }
 }
 
-export async function generateContent(engine, userPreferences) {
+export async function generateContent(engine, userData) {
   try {
     console.log("Starting content generation...");
     
-    // Super simplified prompt
-    const visitCount = parseInt(userPreferences.visitCount) || 1;
+    // Extract relevant information from userData
+    const { user, device } = userData;
+    const visitCount = user.visitCount;
+    const profile = user.profile;
     
     console.log("Preparing to send request to model...");
-    console.log("Available engine methods:", Object.keys(engine));
     
-    // Let's try a simpler API call
     try {
       console.log("Attempting to use chat.completions API...");
+      
+      // Format the JSON data for the prompt
+      const jsonContent = JSON.stringify(userData, null, 2);
+      
+      // Create the prompt with JSON payload
+      const prompt = `
+      Create the main HTML component for my website based on this user data:
+      
+      ${jsonContent}
+      
+      NO PYTHON CODE. NO FLASK. NO JQUERY. ONLY FRONTEND CODE ONLY HTML CSS JAVASCRIPT.
+      
+      Start with this code:
+      <div class="container">
+      
+      </div>
+      `;
       
       const response = await engine.chat.completions.create({
         messages: [
           {
             role: "user",
-            content: `Write a very short HTML that says Welcome to EvoWeb and I've visited ${visitCount} times.`
+            content: prompt
           }
         ],
         temperature: 0.3,
-        max_tokens: 100
+        max_tokens: 1000
       });
       
       console.log("Response received");
       const generatedContent = response.choices[0].message.content;
       
-      // Return a combination of AI and static content
+      // Return ONLY the header, AI content, and footer without the welcome and info boxes
       return `
         <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
           <header style="margin-bottom: 2rem;">
-            <h1 style="color: #4f46e5; font-size: 2.5rem;">Welcome to EvoWeb</h1>
-            <p style="color: #6b7280; font-size: 1.25rem;">Your personalized web experience - Visit #${visitCount}</p>
+            <h1 style="color: #4f46e5; font-size: 2.5rem;">${profile.primaryInterest.charAt(0).toUpperCase() + profile.primaryInterest.slice(1)} Enthusiast</h1>
+            <p style="color: #6b7280; font-size: 1.25rem;">Visit #${visitCount}</p>
           </header>
           
-          <div style="padding: 1.5rem; background-color: #f0f9ff; border-radius: 0.5rem; margin-bottom: 1.5rem;">
-            <h2 style="color: #1e40af; margin-top: 0;">AI Integration Working!</h2>
-            <p>The local LLM has been successfully loaded in your browser.</p>
-            <p>This proves the concept that we can run AI models directly in the browser.</p>
-          </div>
-          
-          <div style="padding: 1.5rem; background-color: #f7fee7; border-radius: 0.5rem;">
-            <h2 style="color: #3f6212; margin-top: 0;">Your Data Stays Private</h2>
-            <p>This site analyzes your browser data without sending anything to servers.</p>
-            <p>We've detected ${visitCount} visits to this site.</p>
+          <div style="padding: 1.5rem; background-color: #fff; border-radius: 0.5rem; border: 1px solid #e5e7eb;">
+            <h2 style="color: #000000; margin-top: 0;">AI-Generated Content</h2>
+            <div id="ai-content" style="color: #000000;">
+              ${generatedContent}
+            </div>
           </div>
           
           <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280;">
@@ -96,24 +108,20 @@ export async function generateContent(engine, userPreferences) {
     } catch (error) {
       console.error("Error with model request:", error);
       
-      // Return a nice fallback that still demonstrates the core concept
+      // Return a simplified fallback
       return `
         <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
           <header style="margin-bottom: 2rem;">
-            <h1 style="color: #4f46e5; font-size: 2.5rem;">Welcome to EvoWeb</h1>
-            <p style="color: #6b7280; font-size: 1.25rem;">Your personalized web experience - Visit #${visitCount}</p>
+            <h1 style="color: #4f46e5; font-size: 2.5rem;">${profile.primaryInterest.charAt(0).toUpperCase() + profile.primaryInterest.slice(1)} Enthusiast</h1>
+            <p style="color: #6b7280; font-size: 1.25rem;">Visit #${visitCount}</p>
           </header>
           
-          <div style="padding: 1.5rem; background-color: #fff1f2; border-radius: 0.5rem; margin-bottom: 1.5rem; border-left: 4px solid #e11d48;">
-            <h2 style="color: #be123c; margin-top: 0;">AI Generation Limited</h2>
-            <p>The LLM model loaded successfully but content generation timed out.</p>
-            <p>This still proves we can detect you've visited this site ${visitCount} times using private browser data!</p>
-          </div>
-          
-          <div style="padding: 1.5rem; background-color: #f7fee7; border-radius: 0.5rem;">
-            <h2 style="color: #3f6212; margin-top: 0;">Core Concept Working</h2>
-            <p>The core concept of EvoWeb is functioning - analyzing browser data privately, on-device.</p>
-            <p>We've detected ${visitCount} visits without sending any data to servers.</p>
+          <div style="padding: 1.5rem; background-color: #fff; border-radius: 0.5rem; border: 1px solid #808080">
+            <h2 style="color: #000000; margin-top: 0;">AI-Generated Content</h2>
+            <div id="ai-content" style="color: #000000;">
+              <p>The LLM model loaded successfully but content generation had issues.</p>
+              <p>We found your interest in <strong>${profile.primaryInterest}</strong> and other interests like ${profile.otherInterests.join(', ')}.</p>
+            </div>
           </div>
           
           <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280;">
@@ -125,13 +133,21 @@ export async function generateContent(engine, userPreferences) {
   } catch (error) {
     console.error("Final error:", error);
     
-    // Return fallback content
+    // Return simplified fallback content
     return `
       <div style="font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem;">
         <header style="margin-bottom: 2rem;">
-          <h1 style="color: #2a4365; font-size: 2.5rem;">Welcome to Your EvoWeb</h1>
-          <p>Technical difficulties - but we still know you've visited ${userPreferences.visitCount} times!</p>
+          <h1 style="color: #4f46e5; font-size: 2.5rem;">Technical Difficulties</h1>
+          <p>Visit #${userData.user.visitCount}</p>
         </header>
+        
+        <div style="padding: 1.5rem; background-color: #fff; border-radius: 0.5rem; border: 1px solid #e5e7eb;">
+          <h2 style="color: #000000; margin-top: 0;">Status</h2>
+          <div id="ai-content" style="color: #000000;">
+            <p>There was a technical issue generating content with the AI model.</p>
+            <p>Please try again later.</p>
+          </div>
+        </div>
       </div>
     `;
   }

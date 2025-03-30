@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { getAllCookies, getLocalStorageData, extractUserPreferences } from './lib/cookie-parser';
+  import { generateUserDataPayload } from './lib/user-data-service';
   import { trackVisit, saveGeneratedContent, getLatestContent } from './lib/storage';
   import { createModelEngine, generateContent } from './lib/model-service';
   
@@ -11,13 +11,21 @@
   let loadingStatus = "Initializing...";
   let forceNewContent = false;
   
-  // Add these for cookie debugging
-  let availableCookies = {};
-  let localStorageData = {};
+  // For user profile selection and debugging
+  let userProfiles = ['outdoor-enthusiast', 'tech-professional', 'wellness-enthusiast'];
+  let selectedProfile = null;
+  let visitCount = 1;
+  let userData = {};
   let showDebugInfo = false;
   
   function toggleDebugInfo() {
     showDebugInfo = !showDebugInfo;
+  }
+  
+  function selectProfile(profileId) {
+    selectedProfile = profileId;
+    forceNewContent = true;
+    handleRegenerateContent();
   }
   
   // Function to generate content with the engine
@@ -33,14 +41,17 @@
     try {
       const engine = await createModelEngine();
       
-      // Get cookies and extract preferences
-      availableCookies = getAllCookies();
-      localStorageData = getLocalStorageData();
-      const userPreferences = extractUserPreferences(availableCookies, localStorageData);
+      // Get visit count from localStorage
+      visitCount = parseInt(localStorage.getItem('visitCount') || '1');
       
-      // Update the prompt to generate more interesting content
+      // Generate user data payload
+      userData = generateUserDataPayload(visitCount, selectedProfile);
+      
+      // Update loading status
       loadingStatus = "Personalizing your experience...";
-      generatedContent = await generateContent(engine, userPreferences);
+      
+      // Generate content using the user data
+      generatedContent = await generateContent(engine, userData);
       
       // Save the generated content
       await saveGeneratedContent(generatedContent);
@@ -63,9 +74,11 @@
     // Track this visit
     trackVisit();
     
-    // Fetch available cookies and local storage data for debugging
-    availableCookies = getAllCookies();
-    localStorageData = getLocalStorageData();
+    // Get visit count from localStorage
+    visitCount = parseInt(localStorage.getItem('visitCount') || '1');
+    
+    // Generate initial user data
+    userData = generateUserDataPayload(visitCount);
     
     // Try to retrieve previous content while loading
     if (!forceNewContent) {
@@ -115,16 +128,35 @@
         </button>
       </div>
       
+      <!-- Profile selector -->
+      <div style="text-align: center; margin-top: 1rem; padding: 1rem; background-color: #f3f4f6; border-radius: 0.5rem;">
+        <h3 style="margin-top: 0;">Select User Profile</h3>
+        <div style="display: flex; justify-content: center; gap: 0.5rem;">
+          {#each userProfiles as profile}
+            <button 
+              on:click={() => selectProfile(profile)}
+              style={`
+                background: ${selectedProfile === profile ? '#3b82f6' : '#e5e7eb'}; 
+                color: ${selectedProfile === profile ? 'white' : '#374151'}; 
+                border: none; 
+                padding: 0.5rem 1rem; 
+                border-radius: 0.5rem; 
+                cursor: pointer;
+              `}
+            >
+              {profile.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            </button>
+          {/each}
+        </div>
+      </div>
+      
       {#if showDebugInfo}
         <div style="margin-top: 2rem; padding: 1rem; background-color: #f3f4f6; border-radius: 0.5rem; font-family: monospace;">
-          <h3>Available Cookies:</h3>
-          <pre>{JSON.stringify(availableCookies, null, 2)}</pre>
+          <h3>User Data JSON:</h3>
+          <pre>{JSON.stringify(userData, null, 2)}</pre>
           
-          <h3>LocalStorage Data:</h3>
-          <pre>{JSON.stringify(localStorageData, null, 2)}</pre>
-          
-          <h3>Extracted Preferences:</h3>
-          <pre>{JSON.stringify(extractUserPreferences(availableCookies, localStorageData), null, 2)}</pre>
+          <h3>Visit Count:</h3>
+          <pre>{visitCount}</pre>
         </div>
       {/if}
     </div>
